@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // Hedef JavaScript sürümü (ES3, ES5, ES6/ES2015, ES2020 vb.)
+    "module": "commonjs", // Modül çözümleme stratejisi (commonjs, amd, es6, es2015, es2020 vb.)
+    "strict": true, // Katı tip denetimi için bütün kuralları etkinleştirir
+    "esModuleInterop": true, // CommonJS modüllerle birlikte çalışma (interop) desteği
+    "outDir": "./dist", // Derlenmiş dosyaların çıkış klasörü
+    "rootDir": "./src", // Kaynak dosyalarının kök dizini
+    "sourceMap": true, // Debug yaparken .map dosyalarını oluşturur
+    "noImplicitAny": true, // İmplicity olarak "any" türü kullanımını engeller
+    "skipLibCheck": true // Dış kütüphanelerdeki tür denetimini atlar
+  },
+  "include": ["src/**/*"], // Derlemeye dahil edilecek dosyalar
+  "exclude": ["node_modules", "**/*.spec.ts"] // Derleme dışı bırakılacak dosyalar
+}
