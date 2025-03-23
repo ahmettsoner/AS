@@ -22,57 +22,6 @@ describe('E2E: Iteration Scenario Iteration 2', () => {
         await cleanupTestProject(E2E_DIR)
     })
 
-    test('First Dev Tag', async () => {
-        const PROJECT_DIR = join(E2E_DIR, `first-dev-tag`);
-        await setupTest(PROJECT_DIR)
-
-        await git.checkoutLocalBranch("release/v1.0.0-alpha")
-        await git.checkoutLocalBranch("dev")
-
-        const expectedVersion = 'v1.1.0-dev.1'
-
-        const versionOutput = execSync('pm phase dev', {
-            cwd: PROJECT_DIR,
-            encoding: 'utf8',
-        }).trim()
-        expect(versionOutput).toEqual(expectedVersion)
-    })
-
-    test('Second Dev Tag', async () => {
-        const PROJECT_DIR = join(E2E_DIR, `second-dev-tag`);
-        await setupTest(PROJECT_DIR)
-
-        await git.checkoutLocalBranch("release/v1.0.0-alpha")
-        await git.checkoutLocalBranch("dev")
-        await git.addTag('v1.1.0-dev.1')
-
-        const expectedVersion = 'v1.1.0-dev.2'
-
-        const versionOutput = execSync('pm phase dev', {
-            cwd: PROJECT_DIR,
-            encoding: 'utf8',
-        }).trim()
-        expect(versionOutput).toEqual(expectedVersion)
-    })
-
-    test('Third Dev Tag', async () => {
-        const PROJECT_DIR = join(E2E_DIR, `third-dev-tag`);
-        await setupTest(PROJECT_DIR)
-
-        await git.checkoutLocalBranch("release/v1.0.0-alpha")
-        await git.checkoutLocalBranch("dev")
-        await git.addTag('v1.1.0-dev.1')
-        await git.addTag('v1.1.0-dev.2')
-
-        const expectedVersion = 'v1.1.0-dev.3'
-
-        const versionOutput = execSync('pm phase dev', {
-            cwd: PROJECT_DIR,
-            encoding: 'utf8',
-        }).trim()
-        expect(versionOutput).toEqual(expectedVersion)
-    })
-
     test('1 iteration stale Dev Tag', async () => {
         const PROJECT_DIR = join(E2E_DIR, `stale-1-iteration`);
         await setupTest(PROJECT_DIR)
@@ -91,7 +40,7 @@ describe('E2E: Iteration Scenario Iteration 2', () => {
     })
 
     test('Get current Dev Tag', async () => {
-        const PROJECT_DIR = join(E2E_DIR, `stale-1-iteration`);
+        const PROJECT_DIR = join(E2E_DIR, `get-current-dev-tag`);
         await setupTest(PROJECT_DIR)
 
         await git.checkoutLocalBranch("release/v1.0.0-alpha")

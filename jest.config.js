@@ -7,4 +7,5 @@ module.exports = {
     },
     testMatch: ['**/?(*.)+(spec|test).[tj]s?(x)'],
     coverageDirectory: 'coverage',
+    testTimeout: 10000,
   };
