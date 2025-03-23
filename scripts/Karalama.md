@@ -22,3 +22,34 @@ Dev branch'te iterasyon boyunca geliştirme yapılır. versiyon sıralamaları s
       yine dev `LABBV`'dan minor+1 olmalı. yine `LDTBV` tespit edilir ve `LABBV` ile karşılaştırılır
       - `LABBV` >= `LDTBV` ise `NDCBV` = `LABBV` minor increment olur, bu dev branch'te release çıkılmamış iteration'lar olabileceği için dev tag'ın geride kalabileceği durumunda alpha'nın baz alınmasını sağlar
       - `LABBV` < `LDTBV` ise `NDCBV` = `LDTBV` olur, bu dev branch'te alpha+minor1 için iteration sürecinde daha önce dev channel release tanımlandığını belirtir
+
+
+
+* `pm phase dev` shows default and only current version for development phase based on dev branch generally `dev`
+  * `--current`: default version state, automatically calculated based on default test phase primary channel (alpha)
+  * `--print`: 
+    * `base`: base version (v1.0.0), 
+    * `version`: without prefix (1.0.0) 
+    * `channel`: channel name (dev), 
+    * `build`: build number, channel number (1) 
+    * `full`: default, full version (v1.0.0-dev.1)
+* `pm phase test <channel>` shows default current. (alpha)
+  * `--next`: show next base version calculated
+    * `version`: for primary test phase channel, same as `pm phase dev --print=base` minor incremented based on step after primary test channel (alpha).
+    * ? for other
+    * `release`: latest test phase <channel> version build number incremented
+  * `--current`: current version info
+  * `--latest`: latest version info
+  * `--print`: same as `pm phase dev`
+* `pm phase stage <channel>` shows default current. generally one stage version (beta, rc, preview)
+  * `--next`: show next base version calculated
+    * `version`: 
+    * `release`: latest stage phase <channel> version build number incremented
+  * `--current`: current version info
+  * `--print`: same as `pm phase dev`
+* `pm phase production` shows default current. only one version and patches (stabil/final)
+  * `--next`: show next base version calculated
+    * `version`: 
+    * `release`: latest production version minor/patch number incremented
+  * `--current`: current version info
+  * `--print`: same as `pm phase dev`
