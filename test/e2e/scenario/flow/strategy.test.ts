@@ -6,6 +6,7 @@ import { cleanupTestProject, createEmptyTestWorkspace } from '../../projectSetup
 
 describe('E2E: Flow Strategy', () => {
     const E2E_DIR = join(__dirname, '../../../../temp/test/e2e/flow/strategy')
+    const PROJECT_DIR = join(E2E_DIR, `full-sample`)
     let git: SimpleGit
 
     const setupTest = async (project_dir: string) => {
@@ -23,137 +24,244 @@ describe('E2E: Flow Strategy', () => {
     })
 
     test('Full sample', async () => {
-        const PROJECT_DIR = join(E2E_DIR, `full-sample`)
         await setupTest(PROJECT_DIR)
-        const cmdOptions: ExecSyncOptionsWithStringEncoding = {
-            cwd: PROJECT_DIR,
-            encoding: 'utf8',
-        }
 
 
-        //iteration 1
         execSync('git checkout -b dev', cmdOptions).trim()
 
-        const setupFeatureBranchDevelopAndCommit = (featureName: string) => {
-            execSync(`git checkout -b feature/${featureName}`, cmdOptions).trim()
-            fs.writeFileSync(join(PROJECT_DIR, `${featureName}-readme.md`), `${featureName} implementation`)
-            execSync('git add .', cmdOptions).trim()
-            execSync(`git commit -m "feat: ${featureName}"`, cmdOptions).trim()
-            execSync('git checkout dev', cmdOptions).trim()
-            execSync(`git merge feature/${featureName} --no-ff`, cmdOptions).trim()
-            execSync(`git branch -d feature/${featureName}`, cmdOptions).trim()
-        }
 
-        const tagDevRelease = (expectedVersion: string) => {
+        // Iteration 1
+        developFeature("add-new-api", "v1.0.0-dev.1")
+        developFeature("add-new-api2")
+        developFeature("add-new-api22", "v1.0.0-dev.2")
+
+
+        //iteration 2 
+        shiftDevelopmentToTestPhase("alpha", "v1.0.0", "v1.0.0-alpha.1")
+
+        developFeature("add-new-api4", "v1.1.0-dev.1")
+        fixBugTestPhase("api-doc-1", "v1.0.0", "alpha", "v1.0.0-alpha.2")
+
+
+        //iteration 3 
+        shiftTestToStagePhase("alpha", "beta", "v1.0.0", "v1.0.0-beta.1")
+        shiftDevelopmentToTestPhase("alpha", "v1.1.0", "v1.1.0-alpha.1")
+
+        developFeature("add-new-api5", "v1.2.0-dev.1")
+        fixBugTestPhase("api-doc-2", "v1.1.0", "alpha", "v1.1.0-alpha.2")
+        fixBugStagePhase("api-doc-3", "v1.0.0", "beta", "v1.0.0-beta.2")
+
+
+        //iteration 4
+        shiftStageToProductionPhase("beta", "v1.0.0")
+        shiftTestToStagePhase("alpha", "beta", "v1.1.0", "v1.1.0-beta.1")
+        shiftDevelopmentToTestPhase("alpha", "v1.2.0", "v1.2.0-alpha.1")
+
+        developFeature("add-new-api6", "v1.3.0-dev.1")
+        fixBugTestPhase("api-doc-4", "v1.2.0", "alpha", "v1.2.0-alpha.2")
+        fixBugStagePhase("api-doc-5", "v1.1.0", "beta", "v1.1.0-beta.2")
+        fixBugStageProduction("api-doc-w19", "v1.0.0", "v1.0.1")
+
+        // Iteration 5
+        shiftProductionToDistributionPhase("v1.0.1")
+        shiftStageToProductionPhase("beta", "v1.1.0")
+        shiftTestToStagePhase("alpha", "beta", "v1.2.0", "v1.2.0-beta.1")
+        shiftDevelopmentToTestPhase("alpha", "v1.3.0", "v1.3.0-alpha.1")
+
+        fixBugStageProduction("api-doc-w9", "v1.1.0", "v1.1.1")
+        developFeature("add-new-api7", "v1.4.0-dev.1")
+        fixBugTestPhase("api-doc-6", "v1.3.0", "alpha", "v1.3.0-alpha.2")
+        fixBugStagePhase("api-doc-7", "v1.1.0", "beta", "v1.2.0-beta.2")
+
+        // Iteration 6
+        shiftProductionToDistributionPhase("v1.1.1")
+        shiftStageToProductionPhase("beta", "v1.2.0")
+        shiftTestToStagePhase("alpha", "beta", "v1.3.0", "v1.3.0-beta.1")
+        shiftDevelopmentToTestPhase("alpha", "v1.4.0", "v1.4.0-alpha.1")
+
+        developFeature("add-new-api8", "v1.5.0-dev.1")
+        fixBugTestPhase("api-doc-8", "v1.4.0", "alpha", "v1.4.0-alpha.2")
+        fixBugStageProduction("api-doc-9", "v1.2.0", "v1.2.1")
+        fixBugStagePhase("api-doc-10", "v1.3.0", "beta", "v1.3.0-beta.2")
+        fixBugPostProduction("api-doc-9", "v1.1.2")
+        fixBugPostProduction("api-doc-110", "v1.1.3")
+
+        // Iteration 7
+        shiftProductionToDistributionPhase("v1.2.1")
+        shiftStageToProductionPhase("beta", "v1.3.0")
+        shiftTestToStagePhase("alpha", "beta", "v1.4.0", "v1.4.0-beta.1")
+        shiftDevelopmentToTestPhase("alpha", "v1.5.0", "v1.5.0-alpha.1")
+
+        developFeature("add-new-api81", "v1.6.0-dev.1")
+        fixBugTestPhase("api-doc-81", "v1.5.0", "alpha", "v1.5.0-alpha.2")
+        fixBugStagePhase("api-doc-101", "v1.4.0", "beta", "v1.4.0-beta.2")
+
+        // Iteration 8
+        shiftProductionToDistributionPhase("v1.3.0")
+        shiftStageToProductionPhase("beta", "v1.4.0")
+        shiftTestToStagePhase("alpha", "beta", "v1.5.0", "v1.5.0-beta.1")
+        shiftDevelopmentToTestPhase("alpha", "v1.6.0", "v1.6.0-alpha.1")
+
+        developFeature("add-new-api9121", "v1.7.0-dev.1")
+        fixBugTestPhase("api-doc-88", "v1.6.0", "alpha", "v1.6.0-alpha.2")
+        fixBugStageProduction("api-doc-98", "v1.4.0", "v1.4.1")
+        fixBugStagePhase("api-doc-108", "v1.5.0", "beta", "v1.5.0-beta.2")
+        fixBugPostProduction("api-doc-98", "v1.3.1")
+        fixBugPostProduction("api-doc-11082", "v1.3.2")
+    })
+
+    const cmdOptions:ExecSyncOptionsWithStringEncoding =  {
+        cwd: PROJECT_DIR,
+        encoding: 'utf8',
+    }
+
+    const developFeature = (featureName: string, expectedVersion: string | null = null) => {
+        execSync(`git checkout -b feature/${featureName}`, cmdOptions).trim()
+        fs.writeFileSync(join(PROJECT_DIR, `${featureName}-readme.md`), `${featureName} implementation`)
+        execSync('git add .', cmdOptions).trim()
+        execSync(`git commit -m "feat: ${featureName}"`, cmdOptions).trim()
+        execSync('git checkout dev', cmdOptions).trim()
+        execSync(`git merge feature/${featureName} --no-ff`, cmdOptions).trim()
+        execSync(`git branch -d feature/${featureName}`, cmdOptions).trim()
+
+        if(expectedVersion){
             const firstDevReleaseVersionOutput = execSync('pm phase dev --next', cmdOptions).trim()
             expect(firstDevReleaseVersionOutput).toEqual(expectedVersion)
             execSync(`git tag -a ${firstDevReleaseVersionOutput} -m "Dev release ${firstDevReleaseVersionOutput}"`, cmdOptions).trim()
         }
+    }
+    const fixBugTestPhase = (fixname: string, baseVersion: string, channel: string | null = null, expectedVersion: string | null = null) => {
+        let channelBaseVersion = baseVersion;
+        if(channel){
+            channelBaseVersion += `-${channel}`
+        }
+        execSync(`git checkout release/${channelBaseVersion}`, cmdOptions).trim()
+        execSync(`git checkout -b hot-fix/${fixname}`, cmdOptions).trim()
+        fs.writeFileSync(join(PROJECT_DIR, `readme-${fixname}.md`), `${fixname} added`)
+        execSync('git add .', cmdOptions).trim()
+        execSync(`git commit -m "doc: ${fixname}"`, cmdOptions).trim()
+        execSync(`git checkout release/${channelBaseVersion}`, cmdOptions).trim()
+        execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
+        execSync('git checkout dev', cmdOptions).trim()
+        execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
+        execSync(`git checkout release/${channelBaseVersion}`, cmdOptions).trim()
+        execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
 
-
-        const moveDevelopmentToTestPhase = (channel :string, expectedBaseVersion: string, expectedVersion: string) => {
-            const secondIterationAlphaBaseVersion = execSync(`pm phase test ${channel} --next-release --print=base`, cmdOptions).trim()
-            expect(secondIterationAlphaBaseVersion).toEqual(expectedBaseVersion)
-            execSync(`git checkout -b release/${secondIterationAlphaBaseVersion}-${channel} dev`, cmdOptions).trim()
-            const secondIterationAlphaVersion = execSync(`pm phase test ${channel} --next`, cmdOptions).trim()
-            expect(secondIterationAlphaVersion).toEqual(expectedVersion)
-            execSync(`git tag -a ${secondIterationAlphaVersion} -m "${channel} release ${secondIterationAlphaVersion}"`, cmdOptions).trim()
+        if(expectedVersion){
+            const newBuildVersion = execSync(`pm phase test ${channel} --next`, cmdOptions).trim()
+            expect(newBuildVersion).toEqual(expectedVersion)
+            execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
             execSync('git checkout dev', cmdOptions).trim()
         }
-
-        
-        const setupFixBranchDevelopAndCommit = (fixname: string, baseVersion: string, channel: string) => {
-            execSync(`git checkout release/${baseVersion}-${channel}`, cmdOptions).trim()
-            execSync(`git checkout -b hot-fix/${fixname}`, cmdOptions).trim()
-            fs.writeFileSync(join(PROJECT_DIR, `readme-${fixname}.md`), `${fixname} added`)
-            execSync('git add .', cmdOptions).trim()
-            execSync(`git commit -m "doc: ${fixname}"`, cmdOptions).trim()
-            execSync(`git checkout release/${baseVersion}-${channel}`, cmdOptions).trim()
-            execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
-            execSync('git checkout dev', cmdOptions).trim()
-            execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
-            execSync(`git checkout release/${baseVersion}-${channel}`, cmdOptions).trim()
-            execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
+    }
+    const fixBugStagePhase = (fixname: string, baseVersion: string, channel: string | null = null, expectedVersion: string | null = null) => {
+        let channelBaseVersion = baseVersion;
+        if(channel){
+            channelBaseVersion += `-${channel}`
         }
+        execSync(`git checkout release/${channelBaseVersion}`, cmdOptions).trim()
+        execSync(`git checkout -b hot-fix/${fixname}`, cmdOptions).trim()
+        fs.writeFileSync(join(PROJECT_DIR, `readme-${fixname}.md`), `${fixname} added`)
+        execSync('git add .', cmdOptions).trim()
+        execSync(`git commit -m "doc: ${fixname}"`, cmdOptions).trim()
+        execSync(`git checkout release/${channelBaseVersion}`, cmdOptions).trim()
+        execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
+        execSync('git checkout dev', cmdOptions).trim()
+        execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
+        execSync(`git checkout release/${channelBaseVersion}`, cmdOptions).trim()
+        execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
 
-        const tagTestRelease = (channel :string, expectedVersion: string) => {
-            const secondIterationAlphaSecondVersion = execSync(`pm phase test ${channel} --next`, cmdOptions).trim()
-            expect(secondIterationAlphaSecondVersion).toEqual(expectedVersion)
-            execSync(`git tag -a ${secondIterationAlphaSecondVersion} -m "Alpha release ${secondIterationAlphaSecondVersion}"`, cmdOptions).trim()
-            execSync('git checkout dev', cmdOptions).trim()
-        }
-
-        
-        const moveTestPhaseToStagePhase = (testChannel :string, channel: string, expectedBaseVersion: string, expectedVersion: string) => {
-            const thirdIterationBetaBaseVersion = execSync(`pm phase stage ${channel} --next-release --print=base`, cmdOptions).trim()
-            expect(thirdIterationBetaBaseVersion).toEqual(expectedBaseVersion)
-            execSync(`git checkout -b release/${thirdIterationBetaBaseVersion}-${channel} release/${thirdIterationBetaBaseVersion}-${testChannel}`, cmdOptions).trim()
-            const thirdIterationBetaVersion = execSync(`pm phase test ${channel} --next`, cmdOptions).trim()
-            expect(thirdIterationBetaVersion).toEqual(expectedVersion)
-            execSync(`git tag -a ${thirdIterationBetaVersion} -m "${channel} release ${thirdIterationBetaVersion}"`, cmdOptions).trim()
+        if(expectedVersion){
+            const newBuildVersion = execSync(`pm phase stage ${channel} --next`, cmdOptions).trim()
+            expect(newBuildVersion).toEqual(expectedVersion)
+            execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
             execSync('git checkout dev', cmdOptions).trim()
         }
+    }
+    const fixBugStageProduction = (fixname: string, baseVersion: string, expectedVersion: string | null = null) => {
+        let channelBaseVersion = baseVersion;
 
-        
-        const moveStagePhaseToProductionPhase = (stageChannel :string, expectedVersion: string) => {
-            const thirdIterationBetaBaseVersion = execSync(`pm phase production --next-release --print=base`, cmdOptions).trim()
-            expect(thirdIterationBetaBaseVersion).toEqual(expectedVersion)
-            execSync(`git checkout -b release/${thirdIterationBetaBaseVersion} release/${thirdIterationBetaBaseVersion}-${stageChannel}`, cmdOptions).trim()
-            const thirdIterationBetaVersion = execSync(`pm phase production --next`, cmdOptions).trim()
-            expect(thirdIterationBetaVersion).toEqual(expectedVersion)
-            execSync(`git tag -a ${thirdIterationBetaVersion} -m "stabil release ${thirdIterationBetaVersion}"`, cmdOptions).trim()
+        const newBuildVersion = execSync(`pm phase production --next-fix`, cmdOptions).trim()
+        execSync(`git checkout -b release/${newBuildVersion} release/${channelBaseVersion}`, cmdOptions).trim()
+        execSync(`git checkout -b hot-fix/${fixname}`, cmdOptions).trim()
+        fs.writeFileSync(join(PROJECT_DIR, `readme-${fixname}.md`), `${fixname} added`)
+        execSync('git add .', cmdOptions).trim()
+        execSync(`git commit -m "doc: ${fixname}"`, cmdOptions).trim()
+        execSync(`git checkout release/${newBuildVersion}`, cmdOptions).trim()
+        execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
+        execSync('git checkout dev', cmdOptions).trim()
+        execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
+        execSync(`git checkout release/${newBuildVersion}`, cmdOptions).trim()
+        execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
+
+        if(expectedVersion){
+            expect(newBuildVersion).toEqual(expectedVersion)
+            execSync(`git tag -a ${newBuildVersion} -m "stabil release ${newBuildVersion}"`, cmdOptions).trim()
             execSync('git checkout dev', cmdOptions).trim()
         }
+    }
+    const fixBugPostProduction = (fixname: string, expectedVersion: string | null = null) => {
 
-        // Iteration 1
-        setupFeatureBranchDevelopAndCommit("add-new-api")
-        tagDevRelease("v1.0.0-dev.1")
-        setupFeatureBranchDevelopAndCommit("add-new-api2")
-        tagDevRelease("v1.0.0-dev.2")
+        let newBuildVersion = execSync(`pm phase production --previous`, cmdOptions).trim()
+        execSync(`git checkout main`, cmdOptions).trim()
+        execSync(`git checkout -b hot-fix/${fixname}`, cmdOptions).trim()
+        fs.writeFileSync(join(PROJECT_DIR, `readme-${fixname}.md`), `${fixname} added`)
+        execSync('git add .', cmdOptions).trim()
+        execSync(`git commit -m "doc: ${fixname}"`, cmdOptions).trim()
+        execSync(`git checkout main`, cmdOptions).trim()
+        execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
+        execSync('git checkout dev', cmdOptions).trim()
+        execSync(`git merge hot-fix/${fixname} --no-ff`, cmdOptions).trim()
+        execSync(`git checkout main`, cmdOptions).trim()
+        execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
 
+        if(expectedVersion){
+            newBuildVersion = execSync(`pm phase production --previous-fix`, cmdOptions).trim()
+            expect(newBuildVersion).toEqual(expectedVersion)
+            execSync(`git tag -a ${newBuildVersion} -m "stabil release ${newBuildVersion}"`, cmdOptions).trim()
+            execSync('git checkout dev', cmdOptions).trim()
+        }
+    }
 
-        //iteration 2 
-        moveDevelopmentToTestPhase("alpha", "v1.0.0", "v1.0.0-alpha.1")
+    const shiftDevelopmentToTestPhase = (channel :string, expectedBaseVersion: string, expectedVersion: string) => {
+        const newBaseVersion = execSync(`pm phase test ${channel} --next-release --print=base`, cmdOptions).trim()
+        expect(newBaseVersion).toEqual(expectedBaseVersion)
+        execSync(`git checkout -b release/${newBaseVersion}-${channel} dev`, cmdOptions).trim()
 
-        setupFeatureBranchDevelopAndCommit("add-new-api3")
-        setupFeatureBranchDevelopAndCommit("add-new-api4")
-        tagDevRelease("v1.1.0-dev.1")
+        const newBuildVersion = execSync(`pm phase test ${channel} --next`, cmdOptions).trim()
+        expect(newBuildVersion).toEqual(expectedVersion)
+        execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
+        execSync('git checkout dev', cmdOptions).trim()
+    }
 
-        setupFixBranchDevelopAndCommit("api-doc-1", "v1.0.0", "alpha")
-        tagTestRelease("alpha", "v1.0.0-alpha.2")
+    const shiftTestToStagePhase = (testChannel :string, channel: string, expectedBaseVersion: string, expectedVersion: string) => {
+        const newBaseVersion = execSync(`pm phase stage ${channel} --next-release --print=base`, cmdOptions).trim()
+        expect(newBaseVersion).toEqual(expectedBaseVersion)
+        execSync(`git checkout -b release/${newBaseVersion}-${channel} release/${newBaseVersion}-${testChannel}`, cmdOptions).trim()
 
+        const newBuildVersion = execSync(`pm phase test ${channel} --next`, cmdOptions).trim()
+        expect(newBuildVersion).toEqual(expectedVersion)
+        execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
+        execSync('git checkout dev', cmdOptions).trim()
+    }
 
-        //iteration 3 
-        moveTestPhaseToStagePhase("alpha", "beta", "v1.0.0", "v1.0.0-beta.1")
-        moveDevelopmentToTestPhase("alpha", "v1.1.0", "v1.1.0-alpha.1")
+    const shiftStageToProductionPhase = (stageChannel :string, expectedVersion: string) => {
+        const newBaseVersion = execSync(`pm phase production --next-release --print=base`, cmdOptions).trim()
+        expect(newBaseVersion).toEqual(expectedVersion)
+        execSync(`git checkout -b release/${newBaseVersion} release/${newBaseVersion}-${stageChannel}`, cmdOptions).trim()
 
-        setupFeatureBranchDevelopAndCommit("add-new-api5")
-        tagDevRelease("v1.2.0-dev.1")
+        const newBuildVersion = execSync(`pm phase production --next`, cmdOptions).trim()
+        expect(newBuildVersion).toEqual(expectedVersion)
+        execSync(`git tag -a ${newBuildVersion} -m "stabil release ${newBuildVersion}"`, cmdOptions).trim()
+        execSync('git checkout dev', cmdOptions).trim()
+    }
 
-        
-        setupFixBranchDevelopAndCommit("api-doc-2", "v1.1.0", "alpha")
-        tagTestRelease("alpha", "v1.1.0-alpha.2")
-
-        setupFixBranchDevelopAndCommit("api-doc-3", "v1.0.0", "beta")
-        tagTestRelease("beta", "v1.0.0-beta.2")
-
-
-        //iteration 4
-        moveStagePhaseToProductionPhase("beta", "v1.0.0")
-        
-
-        moveTestPhaseToStagePhase("alpha", "beta", "v1.1.0", "v1.1.0-beta.1")
-        moveDevelopmentToTestPhase("alpha", "v1.2.0", "v1.2.0-alpha.1")
-
-        setupFeatureBranchDevelopAndCommit("add-new-api6")
-        tagDevRelease("v1.3.0-dev.1")
-
-        
-        setupFixBranchDevelopAndCommit("api-doc-4", "v1.2.0", "alpha")
-        tagTestRelease("alpha", "v1.2.0-alpha.2")
-
-        setupFixBranchDevelopAndCommit("api-doc-5", "v1.1.0", "beta")
-        tagTestRelease("beta", "v1.1.0-beta.2")
-
-    })
+    const shiftProductionToDistributionPhase = (expectedVersion: string) => {
+        const newBuildVersion = execSync(`pm phase production --next`, cmdOptions).trim()
+        expect(newBuildVersion).toEqual(expectedVersion)
+        execSync('git checkout main', cmdOptions).trim()
+        execSync(`git merge release/${newBuildVersion} --no-ff`, cmdOptions).trim()
+        execSync('git checkout dev', cmdOptions).trim()
+        execSync(`git merge main --no-ff`, cmdOptions).trim()
+    }
 })

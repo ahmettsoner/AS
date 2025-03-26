@@ -1,11 +1,14 @@
-| Faz             | Release Name | Channel           | Açıklama                                                                                              | Sürüm Formatı    | Branch                |
-| --------------- | ------------ | ----------------- | ----------------------------------------------------------------------------------------------------- | ---------------- | --------------------- |
-| Dev Fazı        | Dev          | Dev               | Aktif geliştirme aşaması, manuel tetiklenir.                                                          | vX.Y.0-dev.N     | dev                   |
-| Test Fazı       | Test         | Alpha             | Dahili test aşaması, her iteration sonunda çıkar.                                                     | vX.Y.0-alpha.N   | release/X.Y.Z-alpha   |
-| Staging Fazı    | Stage        | Beta, RC, Preview | Final öncesi son aşama, iç testler veya geniş test kullanıcıları için. Opsiyonel: Bir tanesi seçilir. | vX.Y.0-beta.N    | release/X.Y.Z-beta    |
-|                 |              |                   |                                                                                                       | vX.Y.0-rc.N      | release/X.Y.Z-rc      |
-|                 |              |                   |                                                                                                       | vX.Y.0-preview.N | release/X.Y.Z-preview |
-| Production Fazı | Final        | Stable            | Kararlı sürüm, main branch'e merge edilir ve üretime alınır.                                          | vX.Y.0           | release/X.Y.Z → main  |
+| Faz             | Release Name | Channel                       | Açıklama                                                                                              | Sürüm Formatı    | Branch                |
+| --------------- | ------------ | ----------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------- | --------------------- |
+| Analiz          |              |                               |                                                                                                       |                  |                       |
+| Design          |              |                               |                                                                                                       |                  |                       |
+| Dev Fazı        | Dev          | Dev                           | Aktif geliştirme aşaması, manuel tetiklenir.                                                          | vX.Y.0-dev.N     | dev                   |
+| Test Fazı       | Test         | Alpha, QA                     | Dahili test aşaması, her iteration sonunda çıkar.                                                     | vX.Y.0-alpha.N   | release/X.Y.Z-alpha   |
+| Staging Fazı    | Stage        | Beta, RC, Preview, Pilot, UAT | Final öncesi son aşama, iç testler veya geniş test kullanıcıları için. Opsiyonel: Bir tanesi seçilir. | vX.Y.0-beta.N    | release/X.Y.Z-beta    |
+|                 |              |                               |                                                                                                       | vX.Y.0-rc.N      | release/X.Y.Z-rc      |
+|                 |              |                               |                                                                                                       | vX.Y.0-preview.N | release/X.Y.Z-preview |
+| Production Fazı | Final        | Stable                        | Kararlı sürüm, release hazırlanması, döküman ve kullanıcı araçlarının hazırlanması                    | vX.Y.0           | release/X.Y.Z         |
+| Distribution    |              |                               | main branch'e merge edilir ve üretime alınır.                                                         |                  | release/X.Y.Z → main  |
 
 
 ## Dev Fazı

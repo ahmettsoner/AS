@@ -86,10 +86,13 @@ programPhase.addCommand(
         .command('production')
         .alias('p')
         .description('Determine version')
-        .addArgument(new Argument('<version>', 'Specify the version'))
-        .addOption(new Option('-n, --next', 'Next version').default(true))
+        .addArgument(new Argument('[version]', 'Specify the version'))
+        .addOption(new Option('-n, --next', 'Next version'))
         .addOption(new Option('--next-release', 'Next release version'))
+        .addOption(new Option('--next-fix', 'Next fix release version'))
         .addOption(new Option('-c, --current', 'Current version').default(false))
+        .addOption(new Option('--previous', 'Previous version'))
+        .addOption(new Option('--previous-fix', 'Previous fix release version'))
         .addOption(new Option('-p, --print <type>', 'Print option can be full, base, channel, or left empty').choices(['full', 'base', 'channel']).default(''))
         .action(async (version: string, commandOptions: any) => {
             const options = { ...program.opts(), ...commandOptions }
@@ -101,6 +104,64 @@ programPhase.addCommand(
             }
         })
 )
+
+
+//************************
+
+const programShift = program.command('shift').description('')
+
+programShift.addCommand(
+    new Command()
+        .command('test')
+        .alias('t')
+        .description('Shift dev phase to test phase')
+        .action(async (channel: string, version: string, commandOptions: any) => {
+            const options = { ...program.opts(), ...commandOptions }
+
+            const branchManager = new BranchManager()
+            const determinedVersion = await branchManager.DetermineTestPhaseVersion(channel, version, options)
+            if (determinedVersion) {
+                console.log(determinedVersion.replace('\n', ''))
+            }
+        })
+)
+
+programShift.addCommand(
+    new Command()
+        .command('stage')
+        .alias('s')
+        .description('Shift test phase to stage phase')
+        .action(async (channel: string, version: string, commandOptions: any) => {
+            const options = { ...program.opts(), ...commandOptions }
+
+            const branchManager = new BranchManager()
+            const determinedVersion = await branchManager.DetermineStagePhaseVersion(channel, version, options)
+            if (determinedVersion) {
+                console.log(determinedVersion.replace('\n', ''))
+            }
+        })
+)
+
+programShift.addCommand(
+    new Command()
+        .command('production')
+        .alias('p')
+        .description('Shift stage phase to production phase')
+        .action(async (version: string, commandOptions: any) => {
+            const options = { ...program.opts(), ...commandOptions }
+
+            const branchManager = new BranchManager()
+            const determinedVersion = await branchManager.DetermineProductionPhaseVersion("beta", version, options)
+            if (determinedVersion) {
+                console.log(determinedVersion.replace('\n', ''))
+            }
+        })
+)
+
+
+
+/**/
+
 
 const programTag = program.command('tag').description('')
 
@@ -114,7 +175,7 @@ programTag.addCommand(
             const options = { ...program.opts(), ...commandOptions }
 
             const branchManager = new BranchManager()
-            const existingTags = await branchManager.ListBranchTags(branch)
+            const existingTags = await branchManager.listBranchTags(branch)
             console.log(existingTags)
         })
 )
@@ -128,8 +189,9 @@ programTag.addCommand(
         .action(async (branch: string, commandOptions: any) => {
             const options = { ...program.opts(), ...commandOptions }
             const branchManager = new BranchManager()
-            const latestBranch = await branchManager.latestBranchTag(branch, options)
-            console.log(latestBranch)
+            const latestBranchTag = await branchManager.latestBranchTag(branch)
+            const latestBranchVersion = branchManager.getVersionPart(latestBranchTag, options)
+            console.log(latestBranchVersion)
         })
 )
 
@@ -159,7 +221,8 @@ programRelease.addCommand(
         .action(async (channel: string, commandOptions: any) => {
             const options = { ...program.opts(), ...commandOptions }
             const branchManager = new BranchManager()
-            const latestBranch = await branchManager.latestReleaseBranch(channel, options)
+            let latestBranch = await branchManager.latestReleaseBranchVersion(channel)
+            latestBranch = branchManager.getVersionPart(latestBranch, options)
             console.log(latestBranch)
         })
 )
