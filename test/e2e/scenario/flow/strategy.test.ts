@@ -37,77 +37,77 @@ describe('E2E: Flow Strategy', () => {
 
 
         //iteration 2 
-        shiftDevelopmentToTestPhase("alpha", "v1.0.0", "v1.0.0-alpha.1")
+        shiftDevelopmentToQAPhase("alpha", "v1.0.0", "v1.0.0-alpha.1")
 
         developFeature("add-new-api4", "v1.1.0-dev.1")
-        fixBugTestPhase("api-doc-1", "v1.0.0", "alpha", "v1.0.0-alpha.2")
+        fixBugQAPhase("api-doc-1", "v1.0.0", "alpha", "v1.0.0-alpha.2")
 
 
         //iteration 3 
-        shiftTestToStagePhase("alpha", "beta", "v1.0.0", "v1.0.0-beta.1")
-        shiftDevelopmentToTestPhase("alpha", "v1.1.0", "v1.1.0-alpha.1")
+        shiftQAToStagePhase("alpha", "beta", "v1.0.0", "v1.0.0-beta.1")
+        shiftDevelopmentToQAPhase("alpha", "v1.1.0", "v1.1.0-alpha.1")
 
         developFeature("add-new-api5", "v1.2.0-dev.1")
-        fixBugTestPhase("api-doc-2", "v1.1.0", "alpha", "v1.1.0-alpha.2")
+        fixBugQAPhase("api-doc-2", "v1.1.0", "alpha", "v1.1.0-alpha.2")
         fixBugStagePhase("api-doc-3", "v1.0.0", "beta", "v1.0.0-beta.2")
 
 
         //iteration 4
-        shiftStageToProductionPhase("beta", "v1.0.0")
-        shiftTestToStagePhase("alpha", "beta", "v1.1.0", "v1.1.0-beta.1")
-        shiftDevelopmentToTestPhase("alpha", "v1.2.0", "v1.2.0-alpha.1")
+        shiftStageToProdPhase("beta", "v1.0.0")
+        shiftQAToStagePhase("alpha", "beta", "v1.1.0", "v1.1.0-beta.1")
+        shiftDevelopmentToQAPhase("alpha", "v1.2.0", "v1.2.0-alpha.1")
 
         developFeature("add-new-api6", "v1.3.0-dev.1")
-        fixBugTestPhase("api-doc-4", "v1.2.0", "alpha", "v1.2.0-alpha.2")
+        fixBugQAPhase("api-doc-4", "v1.2.0", "alpha", "v1.2.0-alpha.2")
         fixBugStagePhase("api-doc-5", "v1.1.0", "beta", "v1.1.0-beta.2")
-        fixBugStageProduction("api-doc-w19", "v1.0.0", "v1.0.1")
+        fixBugStageProd("api-doc-w19", "v1.0.0", "v1.0.1")
 
         // Iteration 5
-        shiftProductionToDistributionPhase("v1.0.1")
-        shiftStageToProductionPhase("beta", "v1.1.0")
-        shiftTestToStagePhase("alpha", "beta", "v1.2.0", "v1.2.0-beta.1")
-        shiftDevelopmentToTestPhase("alpha", "v1.3.0", "v1.3.0-alpha.1")
+        shiftProdToDistPhase("v1.0.1")
+        shiftStageToProdPhase("beta", "v1.1.0")
+        shiftQAToStagePhase("alpha", "beta", "v1.2.0", "v1.2.0-beta.1")
+        shiftDevelopmentToQAPhase("alpha", "v1.3.0", "v1.3.0-alpha.1")
 
-        fixBugStageProduction("api-doc-w9", "v1.1.0", "v1.1.1")
+        fixBugStageProd("api-doc-w9", "v1.1.0", "v1.1.1")
         developFeature("add-new-api7", "v1.4.0-dev.1")
-        fixBugTestPhase("api-doc-6", "v1.3.0", "alpha", "v1.3.0-alpha.2")
+        fixBugQAPhase("api-doc-6", "v1.3.0", "alpha", "v1.3.0-alpha.2")
         fixBugStagePhase("api-doc-7", "v1.1.0", "beta", "v1.2.0-beta.2")
 
         // Iteration 6
-        shiftProductionToDistributionPhase("v1.1.1")
-        shiftStageToProductionPhase("beta", "v1.2.0")
-        shiftTestToStagePhase("alpha", "beta", "v1.3.0", "v1.3.0-beta.1")
-        shiftDevelopmentToTestPhase("alpha", "v1.4.0", "v1.4.0-alpha.1")
+        shiftProdToDistPhase("v1.1.1")
+        shiftStageToProdPhase("beta", "v1.2.0")
+        shiftQAToStagePhase("alpha", "beta", "v1.3.0", "v1.3.0-beta.1")
+        shiftDevelopmentToQAPhase("alpha", "v1.4.0", "v1.4.0-alpha.1")
 
         developFeature("add-new-api8", "v1.5.0-dev.1")
-        fixBugTestPhase("api-doc-8", "v1.4.0", "alpha", "v1.4.0-alpha.2")
-        fixBugStageProduction("api-doc-9", "v1.2.0", "v1.2.1")
+        fixBugQAPhase("api-doc-8", "v1.4.0", "alpha", "v1.4.0-alpha.2")
+        fixBugStageProd("api-doc-9", "v1.2.0", "v1.2.1")
         fixBugStagePhase("api-doc-10", "v1.3.0", "beta", "v1.3.0-beta.2")
-        fixBugPostProduction("api-doc-9", "v1.1.2")
-        fixBugPostProduction("api-doc-110", "v1.1.3")
+        fixBugPostProd("api-doc-9", "v1.1.2")
+        fixBugPostProd("api-doc-110", "v1.1.3")
 
         // Iteration 7
-        shiftProductionToDistributionPhase("v1.2.1")
-        shiftStageToProductionPhase("beta", "v1.3.0")
-        shiftTestToStagePhase("alpha", "beta", "v1.4.0", "v1.4.0-beta.1")
-        shiftDevelopmentToTestPhase("alpha", "v1.5.0", "v1.5.0-alpha.1")
+        shiftProdToDistPhase("v1.2.1")
+        shiftStageToProdPhase("beta", "v1.3.0")
+        shiftQAToStagePhase("alpha", "beta", "v1.4.0", "v1.4.0-beta.1")
+        shiftDevelopmentToQAPhase("alpha", "v1.5.0", "v1.5.0-alpha.1")
 
         developFeature("add-new-api81", "v1.6.0-dev.1")
-        fixBugTestPhase("api-doc-81", "v1.5.0", "alpha", "v1.5.0-alpha.2")
+        fixBugQAPhase("api-doc-81", "v1.5.0", "alpha", "v1.5.0-alpha.2")
         fixBugStagePhase("api-doc-101", "v1.4.0", "beta", "v1.4.0-beta.2")
 
         // Iteration 8
-        shiftProductionToDistributionPhase("v1.3.0")
-        shiftStageToProductionPhase("beta", "v1.4.0")
-        shiftTestToStagePhase("alpha", "beta", "v1.5.0", "v1.5.0-beta.1")
-        shiftDevelopmentToTestPhase("alpha", "v1.6.0", "v1.6.0-alpha.1")
+        shiftProdToDistPhase("v1.3.0")
+        shiftStageToProdPhase("beta", "v1.4.0")
+        shiftQAToStagePhase("alpha", "beta", "v1.5.0", "v1.5.0-beta.1")
+        shiftDevelopmentToQAPhase("alpha", "v1.6.0", "v1.6.0-alpha.1")
 
         developFeature("add-new-api9121", "v1.7.0-dev.1")
-        fixBugTestPhase("api-doc-88", "v1.6.0", "alpha", "v1.6.0-alpha.2")
-        fixBugStageProduction("api-doc-98", "v1.4.0", "v1.4.1")
+        fixBugQAPhase("api-doc-88", "v1.6.0", "alpha", "v1.6.0-alpha.2")
+        fixBugStageProd("api-doc-98", "v1.4.0", "v1.4.1")
         fixBugStagePhase("api-doc-108", "v1.5.0", "beta", "v1.5.0-beta.2")
-        fixBugPostProduction("api-doc-98", "v1.3.1")
-        fixBugPostProduction("api-doc-11082", "v1.3.2")
+        fixBugPostProd("api-doc-98", "v1.3.1")
+        fixBugPostProd("api-doc-11082", "v1.3.2")
     })
 
     const cmdOptions:ExecSyncOptionsWithStringEncoding =  {
@@ -130,7 +130,7 @@ describe('E2E: Flow Strategy', () => {
             execSync(`git tag -a ${firstDevReleaseVersionOutput} -m "Dev release ${firstDevReleaseVersionOutput}"`, cmdOptions).trim()
         }
     }
-    const fixBugTestPhase = (fixname: string, baseVersion: string, channel: string | null = null, expectedVersion: string | null = null) => {
+    const fixBugQAPhase = (fixname: string, baseVersion: string, channel: string | null = null, expectedVersion: string | null = null) => {
         let channelBaseVersion = baseVersion;
         if(channel){
             channelBaseVersion += `-${channel}`
@@ -148,7 +148,7 @@ describe('E2E: Flow Strategy', () => {
         execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
 
         if(expectedVersion){
-            const newBuildVersion = execSync(`pm phase test ${channel} --next`, cmdOptions).trim()
+            const newBuildVersion = execSync(`pm phase qa ${channel} --next`, cmdOptions).trim()
             expect(newBuildVersion).toEqual(expectedVersion)
             execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
             execSync('git checkout dev', cmdOptions).trim()
@@ -178,10 +178,10 @@ describe('E2E: Flow Strategy', () => {
             execSync('git checkout dev', cmdOptions).trim()
         }
     }
-    const fixBugStageProduction = (fixname: string, baseVersion: string, expectedVersion: string | null = null) => {
+    const fixBugStageProd = (fixname: string, baseVersion: string, expectedVersion: string | null = null) => {
         let channelBaseVersion = baseVersion;
 
-        const newBuildVersion = execSync(`pm phase production --next-fix`, cmdOptions).trim()
+        const newBuildVersion = execSync(`pm phase prod --next-fix`, cmdOptions).trim()
         execSync(`git checkout -b release/${newBuildVersion} release/${channelBaseVersion}`, cmdOptions).trim()
         execSync(`git checkout -b hot-fix/${fixname}`, cmdOptions).trim()
         fs.writeFileSync(join(PROJECT_DIR, `readme-${fixname}.md`), `${fixname} added`)
@@ -200,9 +200,9 @@ describe('E2E: Flow Strategy', () => {
             execSync('git checkout dev', cmdOptions).trim()
         }
     }
-    const fixBugPostProduction = (fixname: string, expectedVersion: string | null = null) => {
+    const fixBugPostProd = (fixname: string, expectedVersion: string | null = null) => {
 
-        let newBuildVersion = execSync(`pm phase production --previous`, cmdOptions).trim()
+        let newBuildVersion = execSync(`pm phase prod --previous`, cmdOptions).trim()
         execSync(`git checkout main`, cmdOptions).trim()
         execSync(`git checkout -b hot-fix/${fixname}`, cmdOptions).trim()
         fs.writeFileSync(join(PROJECT_DIR, `readme-${fixname}.md`), `${fixname} added`)
@@ -216,48 +216,48 @@ describe('E2E: Flow Strategy', () => {
         execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
 
         if(expectedVersion){
-            newBuildVersion = execSync(`pm phase production --previous-fix`, cmdOptions).trim()
+            newBuildVersion = execSync(`pm phase prod --previous-fix`, cmdOptions).trim()
             expect(newBuildVersion).toEqual(expectedVersion)
             execSync(`git tag -a ${newBuildVersion} -m "stabil release ${newBuildVersion}"`, cmdOptions).trim()
             execSync('git checkout dev', cmdOptions).trim()
         }
     }
 
-    const shiftDevelopmentToTestPhase = (channel :string, expectedBaseVersion: string, expectedVersion: string) => {
-        const newBaseVersion = execSync(`pm phase test ${channel} --next-release --print=base`, cmdOptions).trim()
+    const shiftDevelopmentToQAPhase = (channel :string, expectedBaseVersion: string, expectedVersion: string) => {
+        const newBaseVersion = execSync(`pm phase qa ${channel} --next-release --print=base`, cmdOptions).trim()
         expect(newBaseVersion).toEqual(expectedBaseVersion)
         execSync(`git checkout -b release/${newBaseVersion}-${channel} dev`, cmdOptions).trim()
 
-        const newBuildVersion = execSync(`pm phase test ${channel} --next`, cmdOptions).trim()
+        const newBuildVersion = execSync(`pm phase qa ${channel} --next`, cmdOptions).trim()
         expect(newBuildVersion).toEqual(expectedVersion)
         execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
         execSync('git checkout dev', cmdOptions).trim()
     }
 
-    const shiftTestToStagePhase = (testChannel :string, channel: string, expectedBaseVersion: string, expectedVersion: string) => {
+    const shiftQAToStagePhase = (qaChannel :string, channel: string, expectedBaseVersion: string, expectedVersion: string) => {
         const newBaseVersion = execSync(`pm phase stage ${channel} --next-release --print=base`, cmdOptions).trim()
         expect(newBaseVersion).toEqual(expectedBaseVersion)
-        execSync(`git checkout -b release/${newBaseVersion}-${channel} release/${newBaseVersion}-${testChannel}`, cmdOptions).trim()
+        execSync(`git checkout -b release/${newBaseVersion}-${channel} release/${newBaseVersion}-${qaChannel}`, cmdOptions).trim()
 
-        const newBuildVersion = execSync(`pm phase test ${channel} --next`, cmdOptions).trim()
+        const newBuildVersion = execSync(`pm phase stage ${channel} --next`, cmdOptions).trim()
         expect(newBuildVersion).toEqual(expectedVersion)
         execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
         execSync('git checkout dev', cmdOptions).trim()
     }
 
-    const shiftStageToProductionPhase = (stageChannel :string, expectedVersion: string) => {
-        const newBaseVersion = execSync(`pm phase production --next-release --print=base`, cmdOptions).trim()
+    const shiftStageToProdPhase = (stageChannel :string, expectedVersion: string) => {
+        const newBaseVersion = execSync(`pm phase prod --next-release --print=base`, cmdOptions).trim()
         expect(newBaseVersion).toEqual(expectedVersion)
         execSync(`git checkout -b release/${newBaseVersion} release/${newBaseVersion}-${stageChannel}`, cmdOptions).trim()
 
-        const newBuildVersion = execSync(`pm phase production --next`, cmdOptions).trim()
+        const newBuildVersion = execSync(`pm phase prod --next`, cmdOptions).trim()
         expect(newBuildVersion).toEqual(expectedVersion)
         execSync(`git tag -a ${newBuildVersion} -m "stabil release ${newBuildVersion}"`, cmdOptions).trim()
         execSync('git checkout dev', cmdOptions).trim()
     }
 
-    const shiftProductionToDistributionPhase = (expectedVersion: string) => {
-        const newBuildVersion = execSync(`pm phase production --next`, cmdOptions).trim()
+    const shiftProdToDistPhase = (expectedVersion: string) => {
+        const newBuildVersion = execSync(`pm phase prod --next`, cmdOptions).trim()
         expect(newBuildVersion).toEqual(expectedVersion)
         execSync('git checkout main', cmdOptions).trim()
         execSync(`git merge release/${newBuildVersion} --no-ff`, cmdOptions).trim()

@@ -1,0 +1,40 @@
+# https://chatgpt.com/c/67e52d1f-fd1c-8004-9693-e4c3cc115836
+
+name: Build-Dev
+
+on:
+  push:
+    branches:
+      - dev
+    tags:
+      - "v*.*.*-dev.*"
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake make gcc
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22"
+
+      - name: Prepare makes
+        run: |
+          make build.cmake VERSION v1.0.1-dev.1
+
+      - name: Build for Linux x86_64
+        run: make build.binary.linux.x86_64
+
+      - name: List output
+        run: ls -la dist

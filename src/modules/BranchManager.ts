@@ -4,10 +4,105 @@ import semver from 'semver'
 /*
 Burda akış sonra ki step'e merge edilmemiş olan en son version'u işleyecek şekilde kuvvetlendiilmeli
 */
+
+type Config = {
+    tagPrefix: string;
+    releasePrefix: string;
+    defaultDevChannel: string;
+    defaultReleaseChannel: string;
+    phases: {
+        dev: PhaseConfig,
+        qa: PhaseConfig,
+        stage: PhaseConfig,
+        prod: PhaseConfig,
+    };
+}
+type ChannelConfig = {
+    startBuildNumber: number;
+}
+type PhaseConfig = {
+    channels: Record<string, ChannelConfig>;
+}
+
+
 export class BranchManager {
     private readonly git: SimpleGit = simpleGit()
     private readonly defaultBaseVersion = '1.0.0'
 
+    
+    private readonly config: Config = {
+        tagPrefix: 'v',
+        releasePrefix: 'release/',
+        defaultDevChannel: 'dev',
+        defaultReleaseChannel: 'alpha',
+        phases: {
+            dev: {
+                channels: {
+                    dev: {
+                        startBuildNumber : 1
+                    },
+                }
+            },
+            qa: {
+                channels: {
+                    alpha: {
+                        startBuildNumber : 1
+                    },
+                }
+            },
+            stage: {
+                channels: {
+                    beta: {
+                        startBuildNumber : 1
+                    },
+                }
+            },
+            prod: {
+                channels: {
+                    stabil: {
+                        startBuildNumber : 1
+                    },
+                }
+            }
+        }
+    };
+
+    constructor(config?: Partial<typeof this.config>) {
+        if (config) {
+            this.config = { 
+                ...this.config, 
+                ...config, 
+                phases:{
+                    ...this.config.phases,
+                    ...config.phases,
+                    dev: {
+                        channels:{
+                            ...this.config.phases.dev.channels,
+                            ...config.phases?.dev.channels
+                        }
+                    },
+                    qa: {
+                        channels:{
+                            ...this.config.phases.qa.channels,
+                            ...config.phases?.qa.channels
+                        }
+                    },
+                    stage: {
+                        channels:{
+                            ...this.config.phases.stage.channels,
+                            ...config.phases?.stage.channels
+                        }
+                    },
+                    prod: {
+                        channels:{
+                            ...this.config.phases.prod.channels,
+                            ...config.phases?.prod.channels
+                        }
+                    }
+                }
+            };
+        }
+    }
     getVersionPart(version: string, options: any): string {
 
 
@@ -34,11 +129,10 @@ export class BranchManager {
 
     async listBranchTags(branch: string, channel: string | null = null): Promise<string[]> {
         try {
-            // Run `git tag --merged <branch>` to get all tags merged into the branch
             const tags = await this.git.raw(['tag', '--merged', branch]);
     
             
-            let tagPattern = `v[0-9]*\\.[0-9]*\\.[0-9]`; // Escape dots for regex
+            let tagPattern = `${this.config.tagPrefix}[0-9]*\\.[0-9]*\\.[0-9]`;
             if (channel) {
                 tagPattern += `-${channel}\\.[0-9]*`;
             }
@@ -46,7 +140,6 @@ export class BranchManager {
             const regexPattern = tagPattern.replace(/\\\*/g, '.*').replace(/\\\./g, '\\.');
             const regex = new RegExp(`^${regexPattern}$`);
     
-            // Split the result into lines, trim each, and filter using the regex
             const tagList = tags
                 .split('\n')
                 .map((tag: string) => tag.trim())
@@ -63,39 +156,21 @@ export class BranchManager {
         }
     }
 
-    async latestBranchTag(branch: string, channel: string | null = null): Promise<string> {
+    async latestTagVersion(branch: string, channel: string | null = null, baseVersion: string | null = null): Promise<string> {
         try {
-            const tagList = await this.listBranchTags(branch, channel)
-
+            const channelVersion = channel ? `${baseVersion}-${channel}` : baseVersion;
+    
+            const tagList = await this.listBranchTags(branch, channel);
+    
             if (!tagList) {
                 return ''
             }
 
-            const latestTag = tagList.filter(tag => semver.valid(tag)).sort(semver.rcompare)[0]
-
-            return latestTag;
-
-        } catch (error) {
-            console.error('Could not retrieve tags:', error instanceof Error ? error.message : error)
-            return ''
-        }
-    }
-    
-    async latestTagVersion(branch: string, channel: string | null = null, baseVersion: string | null = null): Promise<string> {
-        try {
-            // Construct the channel version string
-            const channelVersion = channel ? `${baseVersion}-${channel}` : baseVersion;
-    
-            // List all tags that match the given branch and channel
-            const matchingTags = await this.listBranchTags(branch, channel);
-    
-            // Filter tags using the regex
-            let filteredTags = matchingTags;
+            let filteredTags = tagList;
             if(channelVersion){
-                filteredTags = matchingTags?.filter(tag => tag.startsWith(channelVersion)) || [];
+                filteredTags = tagList?.filter(tag => tag.startsWith(channelVersion)) || [];
             }
     
-            // Sort filtered tags using semver to find the latest version
             const latestTag = filteredTags.sort(semver.rcompare)[0];
     
             if (!latestTag) {
@@ -112,25 +187,22 @@ export class BranchManager {
 
     async listReleaseBranches(channel: string | null = null): Promise<string[]> {
         try {
-            // Construct the branch pattern with the correct glob
-            let branchPattern = `release/v[0-9]*\\.[0-9]*\\.[0-9]*`; // Escape dots for regex
+            let branchPattern = `${this.config.releasePrefix}${this.config.tagPrefix}[0-9]*\\.[0-9]*\\.[0-9]*`;
             if (channel) {
                 branchPattern += `-${channel}`;
             }
     
-            // Use git to list branches using the pattern
             const result = await this.git.raw(['branch', '--list', branchPattern]);
     
-            // Construct a regex to only match the exact branch names with the constructed pattern
             const regexPattern = branchPattern.replace(/\\\*/g, '.*').replace(/\\\./g, '\\.');
             const regex = new RegExp(`^${regexPattern}$`);
     
-            // Trim and filter the branches
             const branches = result
                 .split('\n')
                 .map(line => line.replace('*', '').trim())
-                .filter(line => regex.test(line)); // Filter using the exact regex
-    
+                .filter(line => regex.test(line)); 
+
+
             return branches;
         } catch (error) {
             console.error(`Error listing branches: ${error}`);
@@ -140,12 +212,14 @@ export class BranchManager {
 
     async latestReleaseBranchVersion(channel: string | null = null): Promise<string> {
         try {
-            const branchList = await this.listReleaseBranches(channel)
+            const branches = await this.listReleaseBranches(channel)
 
-            const latestBranch = branchList
-                .map(branch => branch.replace(/^release\/v/, ''))
-                .filter(tag => semver.valid(tag))
-                .sort(semver.rcompare)[0]
+            const latestBranch = branches
+                .map(branch => branch.replace(this.config.releasePrefix, ''))
+                .map(branch => branch.replace(this.config.tagPrefix, ''))
+                .filter(version => semver.valid(version))
+                .sort(semver.rcompare)[0];
+
 
             if (!latestBranch) {
                 return ''
@@ -156,76 +230,59 @@ export class BranchManager {
                 return ''
             }
 
-            return `v${latestBranch}`
+            return latestBranch ? `${this.config.tagPrefix}${latestBranch}` : '';
         } catch (error) {
             console.error('Could not retrieve tags:', error)
             return ''
         }
     }
 
-    async createReleaseBranch(branchName: string, baseVersion: string): Promise<void> {
-        try {
-            // Define the new branch name using the base version and the branch name
-            const releaseBranchName = `release/v${baseVersion}-${branchName}`
-
-            // Check out the base version (or branch) from which you want to create the new branch
-            await this.git.checkoutLocalBranch(baseVersion)
-
-            // Create the new release branch from the base version
-            await this.git.checkoutBranch(releaseBranchName, baseVersion)
-        } catch (error) {
-            console.error(`Failed to create release branch: ${error}`)
-        }
-    }
 
     async DetermineDevPhaseVersion(branch: string, options?: any) {
-        // Burda dev, alpha release branch'ten ileri ise ve değişiklik varsa kontrolü de olmalı (commit, diff, version)
         try {
-            const channel = 'dev'
+            const channel = this.config.defaultDevChannel;
 
-            let hasAnyAlphaRelease = true
-            let latestReleaseBranchVersion = await this.latestReleaseBranchVersion('alpha')
+            let hasAnyDefaultReleaseChannelVersion = true
+            let latestReleaseBranchVersion = await this.latestReleaseBranchVersion(this.config.defaultReleaseChannel)
             if (!latestReleaseBranchVersion) {
                 latestReleaseBranchVersion = this.defaultBaseVersion
-                hasAnyAlphaRelease = false
+                hasAnyDefaultReleaseChannelVersion = false
             }else {
                 latestReleaseBranchVersion = this.getVersionPart(latestReleaseBranchVersion, { print: 'base' })
             }
-            const baseVersion = `v${latestReleaseBranchVersion}`
+            const baseVersion = `${this.config.tagPrefix}${latestReleaseBranchVersion}`;
             const latestChannelTagVersion = await this.latestTagVersion(branch, channel, baseVersion)
             
             let result = ''
             if (options.next) {
-                // eğer ilk sürümse ve alpha release yoksa
-                if (!hasAnyAlphaRelease) {
-                    // eğer ilk sürüm ve dev channel yoksa
+                if (!hasAnyDefaultReleaseChannelVersion) {
                     if (!latestChannelTagVersion) {
-                        result = `v${this.defaultBaseVersion}-${channel}.1`
+                        result = `${this.config.tagPrefix}${this.defaultBaseVersion}-${channel}.${this.config.phases.dev.channels[channel].startBuildNumber}`;
                     } else {
                         const incrementedVersion = semver.inc(latestChannelTagVersion, 'prerelease', channel)
-                        result = `v${incrementedVersion}`
+                        result = `${this.config.tagPrefix}${incrementedVersion}`;
                     }
                 } else {
                     // Compare release version with dev version
                     if (!latestChannelTagVersion || semver.gt(latestReleaseBranchVersion, latestChannelTagVersion)) {
                         // If release version is greater, bump the minor version from release version
                         const newBaseVersion = semver.inc(latestReleaseBranchVersion, 'minor')
-                        result = `v${newBaseVersion}-${channel}.1`
+                        result = `${this.config.tagPrefix}${newBaseVersion}-${channel}.${this.config.phases.dev.channels[channel].startBuildNumber}`;
                     } else {
                         // Otherwise increment the channel number of the latest dev version
                         const incrementedDevVersion = semver.inc(latestChannelTagVersion, 'prerelease', channel)
-                        result = `v${incrementedDevVersion}`
+                        result = `${this.config.tagPrefix}${incrementedDevVersion}`;
                     }
                 }
             } else if (options.current) {
                 if (!latestChannelTagVersion) {
-                    result = `${baseVersion}-${channel}.1`
+                    result = `${baseVersion}-${channel}.${this.config.phases.dev.channels[channel].startBuildNumber}`;
                 } else {
                     result = latestChannelTagVersion
                 }
             }
 
-            return `v${this.getVersionPart(result, options)}`;
+            return `${this.config.tagPrefix}${this.getVersionPart(result, options)}`;
 
         } catch (error) {
             if (error instanceof Error) {
@@ -235,7 +292,7 @@ export class BranchManager {
             }
         }
     }
-    async DetermineTestPhaseVersion(channel: string, baseVersion?: string, options?: any) {
+    async DetermineQAPhaseVersion(channel: string, baseVersion?: string, options?: any) {
         try {
             if (!baseVersion) {
                 let latestReleaseBranchBaseVersion = await this.latestReleaseBranchVersion(channel)
@@ -244,35 +301,34 @@ export class BranchManager {
                 }else{
                     latestReleaseBranchBaseVersion = this.getVersionPart(latestReleaseBranchBaseVersion, { print: 'base' })
                 }
-                baseVersion = `v${latestReleaseBranchBaseVersion}`
+                baseVersion = `${this.config.tagPrefix}${latestReleaseBranchBaseVersion}`;
             }
-            const latestChannelTagVersion = await this.latestTagVersion(`release/${baseVersion}-${channel}`, channel, baseVersion)
-            // const latestChannelTagVersion = await this.latestReleaseBranchChannelTag(baseVersion, channel)
+            const latestChannelTagVersion = await this.latestTagVersion(`${this.config.releasePrefix}${baseVersion}-${channel}`, channel, baseVersion)
 
             let result = ''
             if (options.next) {
                 if (!latestChannelTagVersion) {
-                    result = `${baseVersion}-${channel}.1`
+                    result = `${baseVersion}-${channel}.${this.config.phases.qa.channels[channel].startBuildNumber}`;
                 } else {
                     const incrementedVersion = semver.inc(latestChannelTagVersion, 'prerelease', channel)
-                    result = `v${incrementedVersion}`
+                    result = `${this.config.tagPrefix}${incrementedVersion}`;
                 }
             } else if (options.nextRelease) {
                 if (!latestChannelTagVersion) {
-                    result = `${baseVersion}-${channel}.1`
+                    result = `${baseVersion}-${channel}.${this.config.phases.qa.channels[channel].startBuildNumber}`;
                 } else {
                     const incrementedVersion = semver.inc(baseVersion, 'minor')
-                    result = `v${incrementedVersion}-${channel}.1`
+                    result = `${this.config.tagPrefix}${incrementedVersion}-${channel}.${this.config.phases.qa.channels[channel].startBuildNumber}`;
                 }
             } else if (options.current) {
                 if (!latestChannelTagVersion) {
-                    result = `${baseVersion}-${channel}.1`
+                    result = `${baseVersion}-${channel}.${this.config.phases.qa.channels[channel].startBuildNumber}`;
                 } else {
                     result = latestChannelTagVersion
                 }
             }
 
-            return `v${this.getVersionPart(result, options)}`;
+            return `${this.config.tagPrefix}${this.getVersionPart(result, options)}`;
         } catch (error) {
             if (error instanceof Error) {
                 console.error(`Tag listeleme hatası: ${error.message}`)
@@ -290,35 +346,34 @@ export class BranchManager {
                 }else {
                     latestReleaseBranchBaseVersion = this.getVersionPart(latestReleaseBranchBaseVersion, { print: 'base' })
                 }
-                baseVersion = `v${latestReleaseBranchBaseVersion}`
+                baseVersion = `${this.config.tagPrefix}${latestReleaseBranchBaseVersion}`;
             }
-            const latestChannelTagVersion = await this.latestTagVersion(`release/${baseVersion}-${channel}`, channel, baseVersion)
-            // const latestChannelTagVersion = await this.latestReleaseBranchChannelTag(baseVersion, channel)
+            const latestChannelTagVersion = await this.latestTagVersion(`${this.config.releasePrefix}${baseVersion}-${channel}`, channel, baseVersion)
 
             let result = ''
             if (options.next) {
                 if (!latestChannelTagVersion) {
-                    result = `${baseVersion}-${channel}.1`
+                    result = `${baseVersion}-${channel}.${this.config.phases.stage.channels[channel].startBuildNumber}`;
                 } else {
                     const incrementedVersion = semver.inc(latestChannelTagVersion, 'prerelease', channel)
-                    result = `v${incrementedVersion}`
+                    result = `${this.config.tagPrefix}${incrementedVersion}`;
                 }
             } else if (options.nextRelease) {
                 if (!latestChannelTagVersion) {
-                    result = `${baseVersion}-${channel}.1`
+                    result = `${baseVersion}-${channel}.${this.config.phases.stage.channels[channel].startBuildNumber}`;
                 } else {
                     const incrementedVersion = semver.inc(baseVersion, 'minor')
-                    result = `v${incrementedVersion}-${channel}.1`
+                    result = `${this.config.tagPrefix}${incrementedVersion}-${channel}.${this.config.phases.stage.channels[channel].startBuildNumber}`;
                 }
             } else if (options.current) {
                 if (!latestChannelTagVersion) {
-                    result = `${baseVersion}-${channel}.1`
+                    result = `${baseVersion}-${channel}.${this.config.phases.stage.channels[channel].startBuildNumber}`;
                 } else {
                     result = latestChannelTagVersion
                 }
             }
 
-            return `v${this.getVersionPart(result, options)}`;
+            return `${this.config.tagPrefix}${this.getVersionPart(result, options)}`;
         } catch (error) {
             if (error instanceof Error) {
                 console.error(`Tag listeleme hatası: ${error.message}`)
@@ -331,21 +386,20 @@ export class BranchManager {
         try {
             let latestStableReleaseBranchBaseVersion = null
             if (!baseVersion) {
-                let latestReleaseBranchBaseVersion = await this.latestReleaseBranchVersion(channelName)
-                latestReleaseBranchBaseVersion = this.getVersionPart(latestReleaseBranchBaseVersion, { print: 'base' })
-                if (!latestReleaseBranchBaseVersion) {
-                    latestReleaseBranchBaseVersion = this.defaultBaseVersion
-                }
+                // let latestReleaseBranchBaseVersion = await this.latestReleaseBranchVersion(channelName)
+                // latestReleaseBranchBaseVersion = this.getVersionPart(latestReleaseBranchBaseVersion, { print: 'base' })
+                // if (!latestReleaseBranchBaseVersion) {
+                //     latestReleaseBranchBaseVersion = this.defaultBaseVersion
+                // }
                 latestStableReleaseBranchBaseVersion = await this.latestReleaseBranchVersion()
                 latestStableReleaseBranchBaseVersion = this.getVersionPart(latestStableReleaseBranchBaseVersion, { print: 'base' })
                 if (!latestStableReleaseBranchBaseVersion) {
                     baseVersion = this.defaultBaseVersion
                 }else{
-                    baseVersion = `v${latestStableReleaseBranchBaseVersion}`
+                    baseVersion = `${this.config.tagPrefix}${latestStableReleaseBranchBaseVersion}`
                 }
             }
-            const latestChannelTagVersion = await this.latestTagVersion(`release/${baseVersion}`, null, baseVersion)
-            const channel = 'final'
+            const latestChannelTagVersion = await this.latestTagVersion(`${this.config.releasePrefix}${baseVersion}`, null, baseVersion)
 
             let result = ''
             if (options.next) {
@@ -359,14 +413,14 @@ export class BranchManager {
                     result = `${baseVersion}`
                 } else {
                     const incrementedVersion = semver.inc(baseVersion, 'minor')
-                    result = `v${incrementedVersion}`
+                    result = `${this.config.tagPrefix}${incrementedVersion}`
                 }
             } else if (options.nextFix) {
                 if (!latestChannelTagVersion && !latestStableReleaseBranchBaseVersion) {
                     result = `${baseVersion}`
                 } else {
                     const incrementedVersion = semver.inc(baseVersion, 'patch')
-                    result = `v${incrementedVersion}`
+                    result = `${this.config.tagPrefix}${incrementedVersion}`
                 }
             } else if (options.current) {
                 if (!latestChannelTagVersion) {
@@ -379,10 +433,10 @@ export class BranchManager {
             } else if (options.previousFix) {
                     const latestMainVersion = await this.latestTagVersion(`main`)
                     const incrementedVersion = semver.inc(latestMainVersion, 'patch')
-                    result = `v${incrementedVersion}`
+                    result = `${this.config.tagPrefix}${incrementedVersion}`
             }
 
-            return `v${this.getVersionPart(result, options)}`;
+            return `${this.config.tagPrefix}${this.getVersionPart(result, options)}`;
         } catch (error) {
             if (error instanceof Error) {
                 console.error(`Tag listeleme hatası: ${error.message}`)
@@ -390,5 +444,9 @@ export class BranchManager {
                 console.error('Tag listeleme hatası: Bilinmeyen hata türü')
             }
         }
+    }
+
+    private escapeForRegex(input: string): string {
+        return input.replace(/\./g, '\\.');
     }
 }
