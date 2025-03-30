@@ -1,3 +1,6 @@
+[![npm version](https://badge.fury.io/js/vereasy.svg)](https://www.npmjs.com/package/vereasy)
+
+
 | Faz                 | Release Name | Channel                       | Açıklama                                                                                              | Sürüm Formatı    | Branch                |
 | ------------------- | ------------ | ----------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------- | --------------------- |
 | Analiz              |              |                               |                                                                                                       |                  |                       |

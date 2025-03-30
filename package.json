@@ -1,5 +1,5 @@
 {
-  "name": "vergen",
+  "name": "vereasy",
   "version": "1.0.0",
   "license": "MIT",
   "author": "Ahmet Soner",
@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "bin": {
-    "vergen": "./dist/main.js"
+    "vereasy": "./dist/main.js"
   },
   "files": [
     "dist"
@@ -31,16 +31,29 @@
     "semver": "^7.7.1",
     "simple-git": "^3.27.0"
   },
-  "keywords": [
-    "git",
-    "release",
-    "changelog",
-    "version",
-    "release-notes",
-    "cli"
-  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ahmettsoner/AS.git"
-  }
+    "url": "https://github.com/ahmettsoner/vereasy.git"
+  },
+  "keywords": [
+    "version",
+    "tag",
+    "semantic-versioning",
+    "semver",
+    "git",
+    "release",
+    "automated-release",
+    "git-tag",
+    "cli",
+    "versioning",
+    "next-version",
+    "version-generator",
+    "git-versioning",
+    "release-planner",
+    "npm-version",
+    "simple-git",
+    "ci-cd",
+    "vereasy"
+  ]
+
 }
