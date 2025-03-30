@@ -1,0 +1,3 @@
+-P ubuntu-latest=my-local-image:latest
+--pull=false
+--bind

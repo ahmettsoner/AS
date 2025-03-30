@@ -10,6 +10,7 @@ type Config = {
     releasePrefix: string;
     defaultDevChannel: string;
     defaultReleaseChannel: string;
+    strictTagBranch: boolean;
     phases: {
         dev: PhaseConfig,
         qa: PhaseConfig,
@@ -35,6 +36,7 @@ export class BranchManager {
         releasePrefix: 'release/',
         defaultDevChannel: 'dev',
         defaultReleaseChannel: 'alpha',
+        strictTagBranch: true,
         phases: {
             dev: {
                 channels: {
@@ -129,10 +131,16 @@ export class BranchManager {
 
     async listBranchTags(branch: string, channel: string | null = null): Promise<string[]> {
         try {
-            const tags = await this.git.raw(['tag', '--merged', branch]);
+            let tagArgs = []
+            if(this.config.strictTagBranch){
+                tagArgs.push("--merged")
+                tagArgs.push(branch)
+            }
+
+            const tags = await this.git.raw(['tag',  ...tagArgs]);
     
             
-            let tagPattern = `${this.config.tagPrefix}[0-9]*\\.[0-9]*\\.[0-9]`;
+            let tagPattern = `${this.config.tagPrefix}[0-9]*\\.[0-9]*\\.[0-9]*`;
             if (channel) {
                 tagPattern += `-${channel}\\.[0-9]*`;
             }

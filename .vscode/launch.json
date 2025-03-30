@@ -11,8 +11,8 @@
         "sourceMaps": true,
         "args": [
           "phase",
-          "test",
-          "alpha"
+          "dev",
+          "--next"
         ],
         "resolveSourceMapLocations": [
           "${workspaceFolder}/dist/**/*.js",

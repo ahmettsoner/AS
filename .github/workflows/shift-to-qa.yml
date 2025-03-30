@@ -1,6 +1,6 @@
 # https://chatgpt.com/c/67e52d1f-fd1c-8004-9693-e4c3cc115836
 
-name: Build-Dev
+name: Shift-To-QA
 
 on:
   workflow_dispatch:
