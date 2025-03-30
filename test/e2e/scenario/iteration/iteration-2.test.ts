@@ -32,7 +32,7 @@ describe('E2E: Iteration Scenario Iteration 2', () => {
 
         const expectedVersion = 'v1.1.0-dev.1'
 
-        const versionOutput = execSync('pm phase dev', {
+        const versionOutput = execSync('vereasy phase dev', {
             cwd: PROJECT_DIR,
             encoding: 'utf8',
         }).trim()
@@ -49,7 +49,7 @@ describe('E2E: Iteration Scenario Iteration 2', () => {
 
         const expectedVersion = '1.1.0'
 
-        const versionOutput = execSync('pm tag latest dev --print=base', {
+        const versionOutput = execSync('vereasy tag latest dev --print=base', {
             cwd: PROJECT_DIR,
             encoding: 'utf8',
         }).trim()
@@ -66,7 +66,7 @@ describe('E2E: Iteration Scenario Iteration 2', () => {
 
         const expectedVersion = 'v1.0.0-alpha.1'
 
-        const versionOutput = execSync('pm phase test alpha v1.0.0', {
+        const versionOutput = execSync('vereasy phase test alpha v1.0.0', {
             cwd: PROJECT_DIR,
             encoding: 'utf8',
         }).trim()
@@ -82,7 +82,7 @@ describe('E2E: Iteration Scenario Iteration 2', () => {
 
         const expectedVersion = 'v1.0.0-alpha.2'
 
-        const versionOutput = execSync('pm phase test alpha v1.0.0', {
+        const versionOutput = execSync('vereasy phase test alpha v1.0.0', {
             cwd: PROJECT_DIR,
             encoding: 'utf8',
         }).trim()
@@ -99,7 +99,7 @@ describe('E2E: Iteration Scenario Iteration 2', () => {
 
         const expectedVersion = 'v1.0.0-alpha.3'
 
-        const versionOutput = execSync('pm phase test alpha v1.0.0', {
+        const versionOutput = execSync('vereasy phase test alpha v1.0.0', {
             cwd: PROJECT_DIR,
             encoding: 'utf8',
         }).trim()
