@@ -22,12 +22,12 @@ jobs:
 
           CHANNEL=alpha
 
-          BASE_VERSION=$(pm phase qa $CHANNEL --next-release --print=base)
+          BASE_VERSION=$(vereasy phase qa $CHANNEL --next-release --print=base)
           echo "Version retrieved: $BASE_VERSION"
 
           git checkout -b release/$BASE_VERSION-$CHANNEL dev
 
-          BUILD_VERSION=$(pm phase qa $CHANNEL --next)
+          BUILD_VERSION=$(vereasy phase qa $CHANNEL --next)
 
           git tag -a $BUILD_VERSION -m "$CHANNEL release $BUILD_VERSION"
 

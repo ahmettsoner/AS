@@ -1,2 +1,2 @@
 `npm link`
-`chmod +x /usr/local/bin/pm`
+`chmod +x /usr/local/bin/vereasy`

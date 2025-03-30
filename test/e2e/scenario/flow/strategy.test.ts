@@ -125,7 +125,7 @@ describe('E2E: Flow Strategy', () => {
         execSync(`git branch -d feature/${featureName}`, cmdOptions).trim()
 
         if(expectedVersion){
-            const firstDevReleaseVersionOutput = execSync('pm phase dev --next', cmdOptions).trim()
+            const firstDevReleaseVersionOutput = execSync('vereasy phase dev --next', cmdOptions).trim()
             expect(firstDevReleaseVersionOutput).toEqual(expectedVersion)
             execSync(`git tag -a ${firstDevReleaseVersionOutput} -m "Dev release ${firstDevReleaseVersionOutput}"`, cmdOptions).trim()
         }
@@ -148,7 +148,7 @@ describe('E2E: Flow Strategy', () => {
         execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
 
         if(expectedVersion){
-            const newBuildVersion = execSync(`pm phase qa ${channel} --next`, cmdOptions).trim()
+            const newBuildVersion = execSync(`vereasy phase qa ${channel} --next`, cmdOptions).trim()
             expect(newBuildVersion).toEqual(expectedVersion)
             execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
             execSync('git checkout dev', cmdOptions).trim()
@@ -172,7 +172,7 @@ describe('E2E: Flow Strategy', () => {
         execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
 
         if(expectedVersion){
-            const newBuildVersion = execSync(`pm phase stage ${channel} --next`, cmdOptions).trim()
+            const newBuildVersion = execSync(`vereasy phase stage ${channel} --next`, cmdOptions).trim()
             expect(newBuildVersion).toEqual(expectedVersion)
             execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
             execSync('git checkout dev', cmdOptions).trim()
@@ -181,7 +181,7 @@ describe('E2E: Flow Strategy', () => {
     const fixBugStageProd = (fixname: string, baseVersion: string, expectedVersion: string | null = null) => {
         let channelBaseVersion = baseVersion;
 
-        const newBuildVersion = execSync(`pm phase prod --next-fix`, cmdOptions).trim()
+        const newBuildVersion = execSync(`vereasy phase prod --next-fix`, cmdOptions).trim()
         execSync(`git checkout -b release/${newBuildVersion} release/${channelBaseVersion}`, cmdOptions).trim()
         execSync(`git checkout -b hot-fix/${fixname}`, cmdOptions).trim()
         fs.writeFileSync(join(PROJECT_DIR, `readme-${fixname}.md`), `${fixname} added`)
@@ -202,7 +202,7 @@ describe('E2E: Flow Strategy', () => {
     }
     const fixBugPostProd = (fixname: string, expectedVersion: string | null = null) => {
 
-        let newBuildVersion = execSync(`pm phase prod --previous`, cmdOptions).trim()
+        let newBuildVersion = execSync(`vereasy phase prod --previous`, cmdOptions).trim()
         execSync(`git checkout main`, cmdOptions).trim()
         execSync(`git checkout -b hot-fix/${fixname}`, cmdOptions).trim()
         fs.writeFileSync(join(PROJECT_DIR, `readme-${fixname}.md`), `${fixname} added`)
@@ -216,7 +216,7 @@ describe('E2E: Flow Strategy', () => {
         execSync(`git branch -d hot-fix/${fixname}`, cmdOptions).trim()
 
         if(expectedVersion){
-            newBuildVersion = execSync(`pm phase prod --previous-fix`, cmdOptions).trim()
+            newBuildVersion = execSync(`vereasy phase prod --previous-fix`, cmdOptions).trim()
             expect(newBuildVersion).toEqual(expectedVersion)
             execSync(`git tag -a ${newBuildVersion} -m "stabil release ${newBuildVersion}"`, cmdOptions).trim()
             execSync('git checkout dev', cmdOptions).trim()
@@ -224,40 +224,40 @@ describe('E2E: Flow Strategy', () => {
     }
 
     const shiftDevelopmentToQAPhase = (channel :string, expectedBaseVersion: string, expectedVersion: string) => {
-        const newBaseVersion = execSync(`pm phase qa ${channel} --next-release --print=base`, cmdOptions).trim()
+        const newBaseVersion = execSync(`vereasy phase qa ${channel} --next-release --print=base`, cmdOptions).trim()
         expect(newBaseVersion).toEqual(expectedBaseVersion)
         execSync(`git checkout -b release/${newBaseVersion}-${channel} dev`, cmdOptions).trim()
 
-        const newBuildVersion = execSync(`pm phase qa ${channel} --next`, cmdOptions).trim()
+        const newBuildVersion = execSync(`vereasy phase qa ${channel} --next`, cmdOptions).trim()
         expect(newBuildVersion).toEqual(expectedVersion)
         execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
         execSync('git checkout dev', cmdOptions).trim()
     }
 
     const shiftQAToStagePhase = (qaChannel :string, channel: string, expectedBaseVersion: string, expectedVersion: string) => {
-        const newBaseVersion = execSync(`pm phase stage ${channel} --next-release --print=base`, cmdOptions).trim()
+        const newBaseVersion = execSync(`vereasy phase stage ${channel} --next-release --print=base`, cmdOptions).trim()
         expect(newBaseVersion).toEqual(expectedBaseVersion)
         execSync(`git checkout -b release/${newBaseVersion}-${channel} release/${newBaseVersion}-${qaChannel}`, cmdOptions).trim()
 
-        const newBuildVersion = execSync(`pm phase stage ${channel} --next`, cmdOptions).trim()
+        const newBuildVersion = execSync(`vereasy phase stage ${channel} --next`, cmdOptions).trim()
         expect(newBuildVersion).toEqual(expectedVersion)
         execSync(`git tag -a ${newBuildVersion} -m "${channel} release ${newBuildVersion}"`, cmdOptions).trim()
         execSync('git checkout dev', cmdOptions).trim()
     }
 
     const shiftStageToProdPhase = (stageChannel :string, expectedVersion: string) => {
-        const newBaseVersion = execSync(`pm phase prod --next-release --print=base`, cmdOptions).trim()
+        const newBaseVersion = execSync(`vereasy phase prod --next-release --print=base`, cmdOptions).trim()
         expect(newBaseVersion).toEqual(expectedVersion)
         execSync(`git checkout -b release/${newBaseVersion} release/${newBaseVersion}-${stageChannel}`, cmdOptions).trim()
 
-        const newBuildVersion = execSync(`pm phase prod --next`, cmdOptions).trim()
+        const newBuildVersion = execSync(`vereasy phase prod --next`, cmdOptions).trim()
         expect(newBuildVersion).toEqual(expectedVersion)
         execSync(`git tag -a ${newBuildVersion} -m "stabil release ${newBuildVersion}"`, cmdOptions).trim()
         execSync('git checkout dev', cmdOptions).trim()
     }
 
     const shiftProdToDistPhase = (expectedVersion: string) => {
-        const newBuildVersion = execSync(`pm phase prod --next`, cmdOptions).trim()
+        const newBuildVersion = execSync(`vereasy phase prod --next`, cmdOptions).trim()
         expect(newBuildVersion).toEqual(expectedVersion)
         execSync('git checkout main', cmdOptions).trim()
         execSync(`git merge release/${newBuildVersion} --no-ff`, cmdOptions).trim()
